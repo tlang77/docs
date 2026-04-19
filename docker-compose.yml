@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: mrr
+      POSTGRES_PASSWORD: mrr
+      POSTGRES_DB: mountain_retreat
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mrr -d mountain_retreat"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://mrr:mrr@db:5432/mountain_retreat
+      NEXTAUTH_SECRET: dev-secret-change-in-production
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN:-}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      INQUIRY_NOTIFICATION_EMAIL: ${INQUIRY_NOTIFICATION_EMAIL:-leads@mountainretreatrealty.com}
+    command: sh -c "npm install && npx prisma migrate deploy && npx prisma db seed && npm run dev"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
+  node_modules:
