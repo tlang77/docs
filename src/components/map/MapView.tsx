@@ -110,19 +110,23 @@ export function MapView({ properties }: MapViewProps) {
     <div className="relative w-full h-full rounded-2xl overflow-hidden">
       <div ref={containerRef} className="w-full h-full" />
       {selected && (
-        <div className="absolute bottom-4 left-4 right-4 bg-white rounded-xl shadow-lg p-3 flex gap-3 items-center">
-          {selected.photo && (
-            <img src={selected.photo} alt="" className="w-16 h-16 object-cover rounded-lg shrink-0" />
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-stone-900 text-sm">{centsToUSD(selected.listPrice)}</p>
-            <p className="text-xs text-stone-500 truncate">{selected.streetAddress}, {selected.city}</p>
-            <p className="text-xs text-stone-400">{selected.bedrooms} bd · {selected.bathrooms} ba</p>
+        <div className="absolute bottom-4 left-3 right-3 sm:left-4 sm:right-4 bg-white rounded-xl shadow-lg p-3">
+          <div className="flex gap-3 items-center">
+            {selected.photo && (
+              <img src={selected.photo} alt="" className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-stone-900 text-sm">{centsToUSD(selected.listPrice)}</p>
+              <p className="text-xs text-stone-500 truncate">{selected.streetAddress}, {selected.city}</p>
+              <p className="text-xs text-stone-400">{selected.bedrooms} bd · {selected.bathrooms} ba</p>
+            </div>
+            <div className="flex flex-col gap-1 items-end shrink-0">
+              <button onClick={() => setSelectedId(null)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">×</button>
+              <Link href={`/listings/${selected.id}`} className="bg-emerald-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition whitespace-nowrap">
+                View
+              </Link>
+            </div>
           </div>
-          <Link href={`/listings/${selected.id}`} className="shrink-0 bg-emerald-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition">
-            View
-          </Link>
-          <button onClick={() => setSelectedId(null)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">×</button>
         </div>
       )}
     </div>

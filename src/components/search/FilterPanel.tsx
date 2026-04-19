@@ -55,46 +55,52 @@ export function FilterPanel() {
   const hasFilters = ['minPrice', 'maxPrice', 'beds', 'type'].some((k) => params.has(k))
 
   return (
-    <div className="flex flex-wrap items-center gap-3 py-3">
-      {/* Min price */}
-      <select
-        className="border border-stone-200 rounded-lg px-3 py-1.5 text-sm bg-white text-stone-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-        value={params.get('minPrice') ?? ''}
-        onChange={(e) => update('minPrice', e.target.value)}
-      >
-        <option value="">Min price</option>
-        {PRICE_OPTIONS.slice(1).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
+    <div className="py-3 space-y-2 sm:space-y-0">
+      {/* Row 1: price + beds selects (always visible, scroll on xs) */}
+      <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:items-center sm:gap-3">
+        <select
+          className="shrink-0 border border-stone-200 rounded-lg px-3 py-1.5 text-sm bg-white text-stone-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          value={params.get('minPrice') ?? ''}
+          onChange={(e) => update('minPrice', e.target.value)}
+        >
+          <option value="">Min price</option>
+          {PRICE_OPTIONS.slice(1).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
 
-      {/* Max price */}
-      <select
-        className="border border-stone-200 rounded-lg px-3 py-1.5 text-sm bg-white text-stone-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-        value={params.get('maxPrice') ?? ''}
-        onChange={(e) => update('maxPrice', e.target.value)}
-      >
-        <option value="">Max price</option>
-        {PRICE_OPTIONS.slice(1).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
+        <select
+          className="shrink-0 border border-stone-200 rounded-lg px-3 py-1.5 text-sm bg-white text-stone-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          value={params.get('maxPrice') ?? ''}
+          onChange={(e) => update('maxPrice', e.target.value)}
+        >
+          <option value="">Max price</option>
+          {PRICE_OPTIONS.slice(1).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
 
-      {/* Beds */}
-      <select
-        className="border border-stone-200 rounded-lg px-3 py-1.5 text-sm bg-white text-stone-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-        value={params.get('beds') ?? ''}
-        onChange={(e) => update('beds', e.target.value)}
-      >
-        <option value="">Beds</option>
-        {BED_OPTIONS.map((b) => <option key={b} value={b}>{b === 0 ? 'Studio' : `${b}+ bd`}</option>)}
-      </select>
+        <select
+          className="shrink-0 border border-stone-200 rounded-lg px-3 py-1.5 text-sm bg-white text-stone-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          value={params.get('beds') ?? ''}
+          onChange={(e) => update('beds', e.target.value)}
+        >
+          <option value="">Beds</option>
+          {BED_OPTIONS.map((b) => <option key={b} value={b}>{b === 0 ? 'Studio' : `${b}+ bd`}</option>)}
+        </select>
 
-      {/* Property type */}
-      <div className="flex gap-1.5">
+        {hasFilters && (
+          <Button variant="ghost" size="sm" onClick={clear} className="shrink-0 gap-1 text-stone-500">
+            <X className="w-3.5 h-3.5" /> Clear
+          </Button>
+        )}
+      </div>
+
+      {/* Row 2: property type pills (horizontal scroll on mobile) */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap">
         {PROPERTY_TYPES.map((t) => {
           const active = params.getAll('type').includes(t.value)
           return (
             <button
               key={t.value}
               onClick={() => toggleType(t.value)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
+              className={`shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
                 active ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-white text-stone-600 border-stone-200 hover:border-emerald-400'
               }`}
             >
@@ -103,12 +109,6 @@ export function FilterPanel() {
           )
         })}
       </div>
-
-      {hasFilters && (
-        <Button variant="ghost" size="sm" onClick={clear} className="gap-1 text-stone-500">
-          <X className="w-3.5 h-3.5" /> Clear
-        </Button>
-      )}
     </div>
   )
 }

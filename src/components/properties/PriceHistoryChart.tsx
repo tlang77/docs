@@ -21,7 +21,7 @@ export function PriceHistoryChart({ history }: PriceHistoryChartProps) {
   return (
     <div>
       <h3 className="text-base font-semibold text-stone-900 mb-4">Price History</h3>
-      <div className="h-48 w-full">
+      <div className="h-40 sm:h-52 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />

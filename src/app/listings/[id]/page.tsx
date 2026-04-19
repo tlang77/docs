@@ -51,20 +51,29 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       {/* Photo gallery */}
-      <div className="grid grid-cols-4 grid-rows-2 gap-2 rounded-2xl overflow-hidden mb-8 h-80 sm:h-[420px]">
-        <div className="col-span-4 sm:col-span-2 row-span-2 relative bg-stone-200">
+      <div className="rounded-2xl overflow-hidden mb-8">
+        {/* Mobile: single full-width photo */}
+        <div className="sm:hidden relative bg-stone-200 h-64">
           {primaryPhoto && (
-            <Image src={primaryPhoto.url} alt={property.streetAddress} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" priority />
+            <Image src={primaryPhoto.url} alt={property.streetAddress} fill className="object-cover" sizes="100vw" priority />
           )}
         </div>
-        {secondaryPhotos.map((photo, i) => (
-          <div key={photo.id} className={`hidden sm:block relative bg-stone-200 ${i >= 2 ? 'row-start-2' : ''}`}>
-            <Image src={photo.url} alt={`Photo ${i + 2}`} fill className="object-cover" sizes="25vw" />
+        {/* sm+: grid layout */}
+        <div className="hidden sm:grid grid-cols-4 grid-rows-2 gap-2 h-[420px]">
+          <div className="col-span-2 row-span-2 relative bg-stone-200">
+            {primaryPhoto && (
+              <Image src={primaryPhoto.url} alt={property.streetAddress} fill className="object-cover" sizes="50vw" priority />
+            )}
           </div>
-        ))}
+          {secondaryPhotos.map((photo, i) => (
+            <div key={photo.id} className={`relative bg-stone-200 ${i >= 2 ? 'row-start-2' : ''}`}>
+              <Image src={photo.url} alt={`Photo ${i + 2}`} fill className="object-cover" sizes="25vw" />
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
         {/* Main content */}
         <div className="lg:col-span-2 space-y-8">
           {/* Header */}
