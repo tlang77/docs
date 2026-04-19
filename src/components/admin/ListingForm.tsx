@@ -42,7 +42,7 @@ export function ListingForm({ initialValues }: ListingFormProps) {
       return
     }
     const property = await res.json()
-    router.push(`/admin/listings`)
+    router.push(isEdit ? `/admin/listings` : `/admin/listings/${property.id}/edit`)
     router.refresh()
   }
 
