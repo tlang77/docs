@@ -1,21 +1,24 @@
-FROM node:14.15.3 AS build
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
 
-WORKDIR /opt/build
-
-COPY ./ /opt/build
-RUN rm -rf /opt/build/.nginx/
-
-RUN npm install
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npx prisma generate
 RUN npm run build
 
-FROM nginx:stable
-
-COPY ./.nginx/nginx.conf /etc/nginx/templates/default.conf.template
-
-COPY --from=build /opt/build/build /var/www/docs
-
-ENV NGINX_PORT 80
-ENV NGINX_HOST rythmbot.co
-ENV NGINX_ROOT /var/www/
-
-EXPOSE 80
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+EXPOSE 3000
+ENV PORT=3000
+CMD ["node", "server.js"]
