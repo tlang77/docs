@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { searchParamsSchema } from '@/lib/validations/search'
-import { PropertyGrid } from '@/components/properties/PropertyGrid'
 import { FilterPanel } from '@/components/search/FilterPanel'
 import { SearchBar } from '@/components/search/SearchBar'
-import { MapView } from '@/components/map/MapView'
+import { ListingsClientLayout } from '@/components/search/ListingsClientLayout'
 import type { Prisma, PropertyStatus, PropertyType } from '@/generated/prisma'
 
 export const metadata: Metadata = {
@@ -83,37 +82,31 @@ export default async function ListingsPage({ searchParams }: PageProps) {
     photo: p.photos[0]?.url,
   }))
 
+  const pagination = total > pageSize ? (
+    <div className="mt-8 flex justify-center gap-2 text-sm">
+      {pageNum > 1 && (
+        <a href={`/listings?${new URLSearchParams({ ...params, page: String(pageNum - 1) })}`}
+          className="px-4 py-2 border rounded-lg hover:bg-stone-50">← Prev</a>
+      )}
+      {pageNum * pageSize < total && (
+        <a href={`/listings?${new URLSearchParams({ ...params, page: String(pageNum + 1) })}`}
+          className="px-4 py-2 border rounded-lg hover:bg-stone-50">Next →</a>
+      )}
+    </div>
+  ) : null
+
   return (
     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6">
       <div className="mb-4">
         <SearchBar defaultValue={q ?? city ?? ''} />
       </div>
       <FilterPanel />
-      <p className="text-sm text-stone-500 mb-4">{total.toLocaleString()} home{total !== 1 ? 's' : ''} found</p>
-
-      <div className="flex gap-6">
-        {/* Results list */}
-        <div className="flex-1 min-w-0">
-          <PropertyGrid properties={properties as any} />
-          {total > pageSize && (
-            <div className="mt-8 flex justify-center gap-2 text-sm">
-              {pageNum > 1 && (
-                <a href={`/listings?${new URLSearchParams({ ...params, page: String(pageNum - 1) })}`}
-                  className="px-4 py-2 border rounded-lg hover:bg-stone-50">← Prev</a>
-              )}
-              {pageNum * pageSize < total && (
-                <a href={`/listings?${new URLSearchParams({ ...params, page: String(pageNum + 1) })}`}
-                  className="px-4 py-2 border rounded-lg hover:bg-stone-50">Next →</a>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Map */}
-        <div className="hidden lg:block w-[480px] xl:w-[600px] shrink-0 sticky top-[80px] h-[calc(100vh-100px)]">
-          <MapView properties={mapProperties} />
-        </div>
-      </div>
+      <ListingsClientLayout
+        initialProperties={properties as any}
+        initialTotal={total}
+        mapProperties={mapProperties}
+        paginationHtml={pagination}
+      />
     </div>
   )
 }
