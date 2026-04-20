@@ -10,8 +10,8 @@ steps:
     image: plugins/docker
     settings:
       dockerfile: ./Dockerfile
-      repo: dock.rythm.online/web/docs
-      registry: dock.rythm.online
+      repo: dock.your-registry.io/web/mountain-retreat
+      registry: dock.your-registry.io
       tags:
       - ${DRONE_COMMIT_SHA}
       username:
@@ -24,16 +24,16 @@ steps:
   - name: deploy
     image: quay.io/rythm-bot/drone-kubernetes
     settings:
-      kubernetes_server: 
+      kubernetes_server:
         from_secret: kube_host
       kubernetes_cert:
         from_secret: kube_ca_cert
       kubernetes_token:
         from_secret: kube_service_token
       namespace: web
-      deployment: docs
-      container: docs
-      repo: dock.rythm.online/web/docs
+      deployment: mountain-retreat
+      container: mountain-retreat
+      repo: dock.your-registry.io/web/mountain-retreat
       tag: ${DRONE_COMMIT_SHA}
     when:
       branch:

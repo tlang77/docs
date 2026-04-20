@@ -1,21 +1,32 @@
-FROM node:14.15.3 AS build
-
-WORKDIR /opt/build
-
-COPY ./ /opt/build
-RUN rm -rf /opt/build/.nginx/
-
-RUN npm install
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npx prisma generate
 RUN npm run build
 
-FROM nginx:stable
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-COPY ./.nginx/nginx.conf /etc/nginx/templates/default.conf.template
+# Next.js standalone bundle
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
-COPY --from=build /opt/build/build /var/www/docs
+# Prisma schema for migrate deploy + native query engine binary
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-ENV NGINX_PORT 80
-ENV NGINX_HOST rythmbot.co
-ENV NGINX_ROOT /var/www/
+# Generated client (custom output path — not inside standalone bundle)
+COPY --from=builder /app/src/generated ./src/generated
 
-EXPOSE 80
+EXPOSE 3000
+
+# Run DB migrations then start the app
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node server.js"]
